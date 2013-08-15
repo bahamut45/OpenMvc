@@ -26,7 +26,7 @@
         <link rel="apple-touch-icon" sizes="114x114" href="http://getbootstrap.com/2.3.2/assets/ico/apple-touch-icon-114x114.png">
     </head>
     <body>
-        <div class="navbar navbar-fixed-top" style="position:static;">
+        <div class="navbar navbar-fixed-top">
             <div class="navbar-inner">
                 <div class="container-fluid">
                     <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
@@ -41,11 +41,8 @@
                             <li><a href="<?php echo Router::url('admin/pages/index'); ?>">Pages</a></li>
                             <li><a href="<?php echo Router::url(''); ?>">Site</a></li>
                             <li><a href="<?php echo Router::url('users/logout'); ?>">Deconnexion</a></li>
-    <!--                         <li class="active"><a href="#">Home</a></li>
-                            <li><a href="#about">About</a></li>
-                            <li><a href="#contact">Contact</a></li> -->
                         </ul>
-                        <p class="navbar-text pull-right">Logged in as <a href="#">username</a></p>
+                        <p class="navbar-text pull-right">Logged in as <a href="#"><?php echo $this->Session->user('login'); ?></a></p>
                     </div><!--/.nav-collapse -->
                 </div>
             </div>

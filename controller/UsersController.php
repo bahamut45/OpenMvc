@@ -39,7 +39,7 @@ class UsersController extends Controller{
     function logout(){
         unset($_SESSION['User']);
         $this->Session->setFlash('Vous êtes maintenant déconnecté');
-        $this->redirect('/');
+        $this->redirect('');
     }
 }
 ?>

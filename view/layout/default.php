@@ -26,7 +26,7 @@
         <link rel="apple-touch-icon" sizes="114x114" href="http://getbootstrap.com/2.3.2/assets/ico/apple-touch-icon-114x114.png">
     </head>
     <body>
-        <div class="navbar navbar-fixed-top" style="position:static;">
+        <div class="navbar navbar-fixed-top">
             <div class="navbar-inner">
                 <div class="container-fluid">
                     <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
@@ -42,11 +42,18 @@
                                 <li><a href="<?php echo BASE_URL.'/pages/view/'.$p->id; ?>"><?php echo $p->name; ?></a></li>
                             <?php endforeach ?>
                             <li><a href="<?php echo Router::url(''); ?>">Actualité</a></li>
-    <!--                         <li class="active"><a href="#">Home</a></li>
-                            <li><a href="#about">About</a></li>
-                            <li><a href="#contact">Contact</a></li> -->
                         </ul>
-                        <p class="navbar-text pull-right">Logged in as <a href="#">username</a></p>
+                        <?php if ($this->Session->isLogged()): ?>
+                            <p class="navbar-text pull-right">
+                                Logged in as <a href="#"><?php echo $this->Session->user('login'); ?></a>
+                                <a href="<?php echo Router::url('users/logout'); ?>">Deconnexion</a>
+                            </p>
+                        <?php else: ?>
+                               <p class="navbar-text pull-right">
+                                <a href="<?php echo Router::url('users/login'); ?>">Connexion</a>
+                            </p>                     
+                        <?php endif ?>
+                        
                     </div><!--/.nav-collapse -->
                 </div>
             </div>
