@@ -32,7 +32,6 @@ class UsersController extends Controller{
             }
         }
     }
-
     /**
      * Logout
      */
@@ -42,4 +41,5 @@ class UsersController extends Controller{
         $this->redirect('');
     }
 }
+
 ?>

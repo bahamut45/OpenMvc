@@ -9,6 +9,7 @@
 
         <!-- Le styles -->
         <link href="http://getbootstrap.com/2.3.2/assets/css/bootstrap.css" rel="stylesheet">
+        <link rel="stylesheet" href="<?php echo Router::webroot('css/bootstrap-datetimepicker/datetimepicker.css'); ?>">
         <style type="text/css">
             body { padding-top: 60px; padding-bottom: 40px; }
         </style>
@@ -37,7 +38,17 @@
                     <a class="brand" href="<?php echo Router::url('admin/posts/index'); ?>">Administration</a>
                     <div class="nav-collapse">
                         <ul class="nav">
-                            <li><a href="<?php echo Router::url('admin/posts/index'); ?>">Articles</a></li>
+                            <li class="dropdown">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">Gestion des articles <b class="caret"></b></a>
+                                <ul class="dropdown-menu">
+                                    <li><a href="<?php echo Router::url('admin/posts/index'); ?>">Liste des articles</a></li>
+                                    <li><a href="<?php echo Router::url('admin/posts/edit'); ?>">Ajouter un article</a></li>
+                                    <li class="divider"></li>
+                                    <li><a href="<?php echo Router::url('admin/posts_categories/index'); ?>">Liste des catégories</a></li>
+                                    <li><a href="<?php echo Router::url('admin/posts_categories/edit'); ?>">Ajouter une catégorie</a></li>
+                                </ul>
+                            </li>
+                            <li></li>
                             <li><a href="<?php echo Router::url('admin/pages/index'); ?>">Pages</a></li>
                             <li><a href="<?php echo Router::url(''); ?>">Site</a></li>
                             <li><a href="<?php echo Router::url('users/logout'); ?>">Deconnexion</a></li>
@@ -47,7 +58,6 @@
                 </div>
             </div>
         </div>
-
         <div class="container-fluid">
             <?php echo $this->Session->flash(); ?>
             <?php echo $content_for_layout; ?>

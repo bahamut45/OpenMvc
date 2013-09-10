@@ -1,0 +1,78 @@
+######################
+OpenMvc via Grafikart#
+######################
+
+****************************
+*Jour 1, La base de données*
+**************************** 
+    Creation de la base de donnée sur phpmyadmin:
+        - OpenMvc interclassement Utf8_general_ci
+    Télécharger (http://dev.mysql.com/downloads/mirror.php?id=412167) ou ouvrir Mysql WorkBench :
+        - Create New EER Model
+        - Double Cliquer sur MYSQL
+            - Name : OpenMvc
+            - Collation : utf8 - utf8_general_ci
+        - Double Cliquer sur add Diagram
+        - Enregistrer en uml_OpenMvc
+
+    Ajout de la table users :
+        - Changer le moteur et mettre Myisam
+        - Ajouter la colonne id avec le type int (primary keys, not null, auto increment)
+        - Ajouter la colonne login avec le type varchar(255)
+        - Ajouter la colonne password avec le type varchar(255)
+
+    Ajout de la table posts :
+        - Changer le moteur et mettre Myisam
+        - Ajouter la colonne id avec le type int (primary keys, not null, auto increment)
+        - Ajouter la colonne name avec le type varchar(255)
+        - Ajouter la colonne content avec le type text
+        - Ajouter la colonne created avec le type datetime
+        - Ajouter la colonne online avec le type int
+        - Ajouter la colonne type avec le type varchar(255)
+        - Ajouter la colonne slug avec le type varchar(255)
+        - Ajouter la colonne user_id avec le type int
+        - Ajouter la relation entre user_id et id de users
+
+    Ajout de la table configs :
+        - Changer le moteur et mettre Myisam
+        - Ajouter la colonne id avec le type int (primary keys, not null, auto increment)
+        - Ajouter la colonne name avec le type varchar(255) (unique)
+        - Ajouter la colonne value avec le type varchar(255)
+
+    Ajout de la table medias :
+        - Changer le moteur et mettre Myisam
+        - Ajouter la colonne id avec le type int (primary keys, not null, auto increment)
+        - Ajouter la colonne name avec le type varchar(255)
+        - Ajouter la colonne file avec le type varchar(255)
+        - Ajouter la colonne post_id avec le type int 
+        - Ajouter la colonne type avec le type varchar(255)
+        - Ajouter la relation entre post_id et id de posts
+
+    Exporter le diagram vers mysql :
+        - File > Export > Forward Engineer SQL CREATE Script
+        - Cocher Skip Creation of FOREIGN KEYS 
+        - Cliquer sur Next
+        - Laisser cocher Export Mysql Table Objects
+        - Cliquer sur Next
+        - Cliquer sur Copy to clipboard
+
+    Aller sur phpmyadmin pour importer la creation des tables :
+        - Selectionner la base OpenMvc 
+        - Cliquer sur le bouton SQL
+        - Clique droit puis coller
+
+**************************
+*Jour 1, La structure PHP*
+************************** 
+    - Creation de la page index.php
+    - Creation des dossiers :
+        - controller
+        - core
+        - model
+        - view
+        - webroot :
+            - css
+            - img
+            - js
+    - Creation des redirections :
+    

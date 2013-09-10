@@ -11,7 +11,7 @@
         $this->controller = $controller;
     }
 
-     public function input($name,$label,$options = array()){
+    public function input($name,$label,$options = array()){
         $error = false;
         $classError = '';
         if (isset($this->errors[$name])) {
@@ -54,6 +54,76 @@
         $html .= '</div></div>';
 
         return $html;
-     }
+    }
+
+    public function select($name,$label,$cat,$subcat = array(),$options = array()){
+        $error = false;
+        $classError = '';
+        if (isset($this->errors[$name])) {
+            $error = $this->errors[$name];
+            $classError = ' error';
+        }
+        $html =  '<div class="control-group '.$classError.'">
+                    <label class="control-label" for="select'.$name.'">'.$label.'</label>
+                    <div class="controls">';
+        $attr = ' ';
+        foreach ($options as $k => $v) { 
+            if ($k!= 'type') {
+                $attr .= " $k=\"$v\"";
+            }
+        }
+        $html .='<select id="select'.$name.'" name="'.$name.'">';
+        $html .='<option value="0">Aucune Catégorie</option>';
+        if (empty($subcat)) {
+            foreach ($cat as $k => $v){
+                if ($this->controller->request->data->name != $v->name) {
+                    $selected = '';
+                    if ($v->id == $this->controller->request->data->$name) {
+                        $selected = 'selected';
+                    }
+                    $html .='<option value="'.$v->id.'" '.$selected.'>'.$v->name.'</option>';
+                }
+            }
+        }else{
+            $html .='<optgroup label="Catégorie Principale">';
+            foreach ($cat as $k => $v){
+                if ($this->controller->request->data->name != $v->name) {
+                    $selected = '';
+                    if ($v->id == $this->controller->request->data->$name) {
+                        $selected = 'selected';
+                    }
+                    $html .='<option value="'.$v->id.'" '.$selected.'>'.$v->name.'</option>';
+                }
+            }
+            $html .='</optgroup>';
+            foreach ($cat as $cle => $valeur) {
+                $for = 0;
+                foreach ($subcat as $key => $value) {
+                    if ($valeur->id == $value->parentId) {  
+                        if ($for == 0) {
+                            $html .='<optgroup label="Sous Categorie de '.$valeur->name.'">';
+                        }
+                        if ($this->controller->request->data->name != $value->name) {
+                            $selected = '';
+                            if ($value->id == $this->controller->request->data->$name) {
+                                $selected = 'selected';
+                            }
+                            $html .='<option value="'.$value->id.'" '.$selected.'>'.$value->name.'</option>';
+                        }                  
+                        $for++;
+                    }
+                }
+                if ($for == 0) {
+                    $html .='</optgroup>';
+                }
+            }
+        }
+        $html .= '</select>';
+        if ($error) {
+            $html .= '<span class="help-inline">'.$error.'</span>';
+        }
+        $html .= '</div></div>';
+        return $html;
+    }
  } 
 ?>

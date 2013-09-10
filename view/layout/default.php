@@ -46,6 +46,9 @@
                         <?php if ($this->Session->isLogged()): ?>
                             <p class="navbar-text pull-right">
                                 Logged in as <a href="#"><?php echo $this->Session->user('login'); ?></a>
+                                <?php if ($this->Session->user('role') == 'admin'): ?>
+                                    <a href="<?php echo Router::url('admin'); ?>">Administration</a>
+                                <?php endif ?>
                                 <a href="<?php echo Router::url('users/logout'); ?>">Deconnexion</a>
                             </p>
                         <?php else: ?>

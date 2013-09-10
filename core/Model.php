@@ -59,7 +59,7 @@ class Model{
                 $errors[$k] = $v['message'];
             }else{
                 if ($v['rule'] == 'notEmpty'){
-                    if (empty($data->$k)) {
+                    if (empty($data->$k) && $data->$k !=="0") {
                         $errors[$k] = $v['message'];
                     }
                 }elseif (!preg_match('/^'.$v['rule'].'$/', $data->$k)) {
@@ -75,7 +75,28 @@ class Model{
             return true;
         }
         return false;
+    }
 
+    /**
+     * Permet d'ajouter automatiquement le prefixe du nom de table 
+     * @param [type] $value [description]
+     */
+    private function addTableNameFields($fields,$alias = null){
+        $explode = array();
+        $return = array();
+        if(is_assoc($fields)) {
+            foreach ($fields as $key => $value) {
+                $return[] = $alias.'.'.$key.' as '.$value;
+            }
+        }else {
+            foreach ($fields as $k) {
+                $explode = explode(',',$k);
+                foreach ($explode as $value) {
+                    $return[] = get_class($this).'.'.$value;
+                }
+            }
+        }  
+        return $return;
     }
 
     /**
@@ -85,10 +106,12 @@ class Model{
      */
     public function find($req = array()){
         $sql = 'SELECT ';
+        $join = '';
 
+        //Construction de la liste des champs
         if (isset($req['fields'])) {
             if(is_array($req['fields'])){
-                $sql .= implode(', ',$req['fields']);
+                $sql .= implode(',',$this->addTableNameFields($req['fields']));
             }else{
                 $sql .= $req['fields'];
             }            
@@ -96,7 +119,21 @@ class Model{
             $sql .= '*';
         } 
 
-        $sql .= ' FROM '.$this->table.' as '.get_class($this).'';
+        //Construction des jointures
+        if(isset($req['joins'])) {
+            $nbjoins = count($req['joins']);
+            for($i = 0; $i < $nbjoins; $i++) {
+                if (is_array($req['joins'][$i]['fields'])) {
+                    $sql .= ','.implode(',', $this->addTableNameFields($req['joins'][$i]['fields'],$req['joins'][$i]['as']));
+                }else{
+                    $sql .= ','.$req['joins'][$i]['as'].'.'.$req['joins'][$i]['fields'];
+                }
+                $join .= ' '.strtoupper($req['joins'][$i]['type']).' JOIN '.strtolower($req['joins'][$i]['table']).' as '.$req['joins'][$i]['as'];
+                $join .= ' ON '.$req['joins'][$i]['conditions'];
+            }
+        }
+
+        $sql .= ' FROM '.$this->table.' as '.get_class($this).' '.$join;
 
         //Construction de la condition
         if (isset($req['conditions'])) {
@@ -107,7 +144,6 @@ class Model{
                 $cond = array();
                 foreach ($req['conditions'] as $k => $v) {
                     if (!is_numeric($v)) {
-                        // $v = '"'.mysql_escape_string($v).'"';
                         $v = $this->db->quote($v);
                     }
                     $cond[] = "$k=$v";
@@ -116,12 +152,21 @@ class Model{
             }
         }
 
+        // Construction de l'ordre
+        if(isset($req['orderDesc'])){
+            $sql .= ' ORDER BY ' . $req['orderDesc'] . ' DESC';
+        }
+
+        if(isset($req['orderAsc'])){
+            $sql .= ' ORDER BY ' . $req['orderAsc'] . ' ASC';
+        }
+
         //Construction de la limite
         if (isset($req['limit'])) {
             $sql .= ' LIMIT '.$req['limit'];
         }
 
-        // die($sql);
+        //die($sql);
         $pre = $this->db->prepare($sql);
         $pre->execute();
         return $pre->fetchAll(PDO::FETCH_OBJ);
@@ -131,11 +176,17 @@ class Model{
         return current($this->find($req));
     }
 
-    public function findCount($conditions){
-        $res = $this->findFirst(array(
-            'fields' => 'COUNT('.$this->primaryKey.') as count',
-            'conditions' => $conditions
-        ));
+    public function findCount($conditions = null){
+        if (is_null($conditions)) {
+            $res = $this->findFirst(array(
+                'fields' => 'COUNT('.$this->primaryKey.') as count'
+            ));
+        }else{
+            $res = $this->findFirst(array(
+                'fields' => 'COUNT('.$this->primaryKey.') as count',
+                'conditions' => $conditions
+            ));
+        }
         return $res->count;
     }
 
@@ -156,7 +207,6 @@ class Model{
             }elseif (!empty($v)) {
                 $d[":$k"] = $v;
             }
-
         }
         if (isset($data->$key) && !empty($data->$key)) {
             $sql = 'UPDATE '.$this->table.' SET '.implode(',',$fields).' WHERE '.$key.'=:'.$key ;
@@ -171,7 +221,6 @@ class Model{
         if ($action == 'insert') {
             $this->id = $this->db->lastInsertID();
         }
-
     }
 
 }

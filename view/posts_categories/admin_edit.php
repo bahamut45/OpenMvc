@@ -1,45 +1,22 @@
-<?php 
-    //debug();
-?>
 <div class="page-header">
-    <h1>Editer un article</h1>
+    <h1>Editer une catégorie</h1>
 </div>
 
-<form class="form-horizontal" action="<?php echo Router::url('admin/posts/edit/'.$id); ?>" method="post">
+<form class="form-horizontal" action="<?php echo Router::url('admin/posts_categories/edit/'.$id); ?>" method="post">
     <?php echo $this->Form->input('name','Titre'); ?>
-    <?php echo $this->Form->select('cat_id','Catégorie',$cat,$subcat); ?>     
-    <?php echo $this->Form->input('slug','Url'); ?>
+    <?php echo $this->Form->select('parentId','Catégorie',$cat,$subcat); ?>    
+    <?php echo $this->Form->input('sort','Ordre',array('class' => 'input-mini')); ?>
     <?php echo $this->Form->input('id','hidden'); ?>
-    <?php echo $this->Form->input('created','Crée le',array(
-        'class' => 'form_datetime'
-    )); ?>
-    <?php echo $this->Form->input('content','Contenu',array(
+    <?php echo $this->Form->input('content','Description',array(
         'type' => 'textarea',
         'class' => 'input-xxlarge wysiwyg',
         'rows' => 5
-    )); ?>
-    <?php echo $this->Form->input('online','En ligne',array(
-        'type' => 'checkbox'
     )); ?>
     <div class="form-actions">
         <input type="submit" class="btn btn-primary" name="" value="Envoyer">
     </div>
 </form>
 <script src="http://code.jquery.com/jquery.min.js"></script>
-<script src="<?php echo Router::webroot('js/bootstrap-datetimepicker/bootstrap-datetimepicker.js'); ?>"></script>
-<script src="<?php echo Router::webroot('js/bootstrap-datetimepicker/locales/bootstrap-datetimepicker.fr.js'); ?>"></script>
-<script type="text/javascript">
-    $('.form_datetime').datetimepicker({
-        format: 'yyyy-mm-dd hh:ii:ss',
-        language:  'fr',
-        weekStart: 1,
-        todayBtn:  1,
-        autoclose: 1,
-        todayHighlight: 1,
-        startView: 2,
-        forceParse: 0
-    });
-</script>
 <script src="<?php echo Router::webroot('js/tinymce/tinymce.min.js'); ?>"></script>
 <script type="text/javascript">
     tinyMCE.baseURL ='<?php echo Router::webroot('js/tinymce'); ?>';
