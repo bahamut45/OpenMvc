@@ -10,6 +10,7 @@
         <!-- Le styles -->
         <link href="http://getbootstrap.com/2.3.2/assets/css/bootstrap.css" rel="stylesheet">
         <link rel="stylesheet" href="<?php echo Router::webroot('css/bootstrap-datetimepicker/datetimepicker.css'); ?>">
+        <link rel="stylesheet" href="<?php echo Router::webroot('css/autocomplete/jquery.autocomplete.css'); ?>">
         <style type="text/css">
             body { padding-top: 60px; padding-bottom: 40px; }
         </style>

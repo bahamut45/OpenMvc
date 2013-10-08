@@ -4,7 +4,7 @@
  * @param  [type] $var [description]
  * @return [type]      [description]
  */
-function debug($var = null){    
+function debug($var = null){  
     if($var === null){
         echo '<pre>';
         print_r($GLOBALS);

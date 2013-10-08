@@ -123,10 +123,12 @@ class Model{
         if(isset($req['joins'])) {
             $nbjoins = count($req['joins']);
             for($i = 0; $i < $nbjoins; $i++) {
-                if (is_array($req['joins'][$i]['fields'])) {
-                    $sql .= ','.implode(',', $this->addTableNameFields($req['joins'][$i]['fields'],$req['joins'][$i]['as']));
-                }else{
-                    $sql .= ','.$req['joins'][$i]['as'].'.'.$req['joins'][$i]['fields'];
+                if(isset($req['joins'][$i]['fields'])) {
+                    if (is_array($req['joins'][$i]['fields'])) {
+                        $sql .= ','.implode(',', $this->addTableNameFields($req['joins'][$i]['fields'],$req['joins'][$i]['as']));
+                    }else{
+                        $sql .= ','.$req['joins'][$i]['as'].'.'.$req['joins'][$i]['fields'];
+                    }
                 }
                 $join .= ' '.strtoupper($req['joins'][$i]['type']).' JOIN '.strtolower($req['joins'][$i]['table']).' as '.$req['joins'][$i]['as'];
                 $join .= ' ON '.$req['joins'][$i]['conditions'];
@@ -216,10 +218,12 @@ class Model{
             $sql = 'INSERT INTO '.$this->table.' SET '.implode(',',$fields);
             $action = 'insert';
         }
+
+        //die($sql);
         $pre = $this->db->prepare($sql);
         $pre->execute($d);
         if ($action == 'insert') {
-            $this->id = $this->db->lastInsertID();
+            $this->req_id = $this->db->lastInsertID();
         }
     }
 

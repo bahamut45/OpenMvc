@@ -2,7 +2,7 @@
     //debug($posts);
 ?>
 <div class="page-header">
-    <h1><?php echo $total; ?> Articles</h1>
+    <h1><?php echo $total; ?> Articles </h1>
 </div>
 
 <table class="table table-bordered">
@@ -11,6 +11,7 @@
             <th>ID</th>
             <th>En ligne ?</th>
             <th>Auteur</th>
+            <th>Créé le</th>
             <th>Titre</th>
             <th>Catégorie</th>
             <th>Actions</th>
@@ -25,6 +26,7 @@
                         <span class="label <?php echo ($v->online == 1) ? 'label-success' : 'label-important'; ?>"><?php echo ($v->online == 1) ? 'En ligne' : 'Hors ligne'; ?></span>
                     </td>
                     <td><?php echo $v->UserLogin; ?></td>
+                    <td><?php echo $v->created; ?></td>
                     <td><?php echo $v->name; ?></td>
                     <td>
                         <span class="label <?php echo ($v->cat_id == 0) ? 'label-important' : 'label-success'; ?>"><?php echo ($v->cat_id == 0) ? 'Sans catégorie' : $v->PostCatName; ?></span>

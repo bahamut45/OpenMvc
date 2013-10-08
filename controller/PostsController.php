@@ -8,11 +8,12 @@ class PostsController extends Controller{
         $perPage = 10;
         $this->loadModel('Post');
         $condition = array(
-                'type'   =>'post',
-                'online' => 1
-            );
+            'type'   =>'post',
+            'online' => 1
+        );
         $d['posts'] = $this->Post->find(array(
             'conditions' => $condition,
+            'orderDesc'   => 'created',
             'limit'      => ($perPage*($this->request->page-1)).','.$perPage
         ));
         $d['total'] = $this->Post->findCount($condition);
@@ -52,13 +53,12 @@ class PostsController extends Controller{
                 'type'   =>'post'
             );
         $d['posts'] = $this->Post->find(array(
-            'fields'     => array('id,name,online,cat_id'),
+            'fields'     => array('id,name,online,cat_id,created'),
             'conditions' => $condition,
-            'joins' => array(
+            'joins'      => array(
                 array(
-                    'table'      => 'posts_categories',
-                    'as'         => 'PostCat',
-                    //'fields'     => 'name as CatName',
+                    'table'  => 'posts_categories',
+                    'as'     => 'PostCat',
                     'fields' => array(
                         'name' => 'PostCatName',
                         'parentId' => 'PostCatParentId'
@@ -67,10 +67,9 @@ class PostsController extends Controller{
                     'conditions' => 'Post.cat_id = PostCat.id'
                 ),
                 array(
-                    'table'      => 'users',
-                    'as'         => 'User',
-                    //'fields'     => 'login as UserLogin',
-                    'fields'    => array(
+                    'table'  => 'users',
+                    'as'     => 'User',
+                    'fields' => array(
                         'login' => 'UserLogin'
                     ),
                     'type'       => 'left',
@@ -93,6 +92,38 @@ class PostsController extends Controller{
      * @return [type]     [description]
      */
     function admin_edit($id = null){
+        //lister les tags de l'article        
+        $this->loadModel('Tag');
+        $condition = array(
+            'pt.posts_id' => $id
+        );
+        $d['articleTags'] = $this->Tag->find(array(
+            'fields' => array('name'),
+            'conditions' => $condition,
+            'joins'      => array(
+                array(
+                    'table'  => 'posts_tags',
+                    'as'     => 'pt',
+                    'type'       => 'left',
+                    'conditions' => 'pt.tags_id = Tag.id'
+                )
+            ),
+            'orderAsc' => 'name'
+        ));
+        foreach ($d['articleTags'] as $k => $v) {
+            $articleTags[] = $v->name;
+        }
+        $d['articleTags'] = implode(', ', $articleTags).', ';
+
+        // Liste tous les tags pour autocompletion
+        $this->loadModel('Tag');
+        $d['tags'] = $this->Tag->find();
+        foreach ($d['tags'] as $k => $v) {
+            $listTags[$v->id] = $v->name;
+        }
+        $d['listTags'] = $listTags;
+
+        //Liste les catégorie et sous catégorie pour les articles
         $this->loadModel('Posts_categorie');
         $d['cat'] = $this->Posts_categorie->find(array(
             'fields' =>'id,name,parentId',
@@ -104,6 +135,7 @@ class PostsController extends Controller{
             'conditions' => 'parentId != 0 AND parentId != -1',
             'orderAsc' => 'parentId'
         ));
+
         $this->loadModel('Post');
         if ($id === null) {
             $post = $this->Post->findFirst(array(
@@ -120,8 +152,46 @@ class PostsController extends Controller{
          } 
         $d['id'] = $id;       
         if ($this->request->data) {
+                
+            $dataTags = array_map('trim',explode(',', $this->request->data->tag));
+            $dataTags = array_map('strtolower', $dataTags);
+            $dataTags = array_unique($dataTags);
+
+            $addTags = array_diff($dataTags, $articleTags);
+            if (count($addTags) > 0) {
+                foreach ($addTags as $tag) {
+                    if (empty($tag)) {
+                        continue;
+                    }
+                    if (!in_array($tag, $listTags)) {
+                        $saveTag = array('name' => $tag);
+                        $this->loadModel('Tag');
+                        $this->Tag->save($saveTag);
+                        $lastTag = $this->Tag->req_id;
+                    }else {
+                        $lastTag = array_search($tag,$listTags);
+                    }
+                        $save = array('posts_id' => $id, 'tags_id' => $lastTag);
+                        $this->loadModel('Posts_tag');
+                        $this->Posts_tag->save($save);
+                }
+            }
+
+            $delTags = array_diff($articleTags, $dataTags);
+            if (count($delTags) > 0) {
+                foreach ($delTags as $key) {
+                    $tag = array_search($key,$listTags);
+                    $this->loadModel('Posts_tag');
+                    $tagId = $this->Posts_tag->findFirst(array(
+                        'conditions' => array('tags_id' => $tag, 'posts_id' => $id)
+                    ));
+                    $this->Posts_tag->delete($tagId->id);
+                }
+            }
+
             if ($this->Post->validates($this->request->data)) {
                 $this->request->data->type = 'post';
+                unset($this->request->data->tag);
                 $this->Post->save($this->request->data);                
                 $this->Session->setFlash('Le contenu a bien été modifié');
                 $id = $this->Post->id;
@@ -139,7 +209,7 @@ class PostsController extends Controller{
 
     /**
      * Permet de supprimer un article
-     * @param  [type] $i [description]
+     * @param  [type] $id [description]
      * @return [type]    [description]
      */
     function admin_delete($id){

@@ -1,5 +1,5 @@
 <?php 
-    //debug();
+    // debug(json_encode($listTags));
 ?>
 <div class="page-header">
     <h1>Editer un article</h1>
@@ -21,11 +21,28 @@
     <?php echo $this->Form->input('online','En ligne',array(
         'type' => 'checkbox'
     )); ?>
+    <div class="control-group ">
+        <label class="control-label" for="inputtag">Tag</label>
+        <div class="controls"><input type="text" name="tag" id="inputtag" value="<?php echo $articleTags; ?>" /></div>
+    </div>    
     <div class="form-actions">
         <input type="submit" class="btn btn-primary" name="" value="Envoyer">
     </div>
 </form>
 <script src="http://code.jquery.com/jquery.min.js"></script>
+<script src="<?php echo Router::webroot('js/autocomplete/jquery.autocomplete.min.js'); ?>"></script>
+<script>
+    $(document).ready(function($) {
+        var src = <?php echo json_encode(array_values($listTags)); ?>;
+        $("#inputtag").autocomplete({
+            data: src, 
+            minChars: 1,
+            useDelimiter: true,
+            selectFirst: true,
+            autoFill: true,
+        });
+    })
+</script>
 <script src="<?php echo Router::webroot('js/bootstrap-datetimepicker/bootstrap-datetimepicker.js'); ?>"></script>
 <script src="<?php echo Router::webroot('js/bootstrap-datetimepicker/locales/bootstrap-datetimepicker.fr.js'); ?>"></script>
 <script type="text/javascript">
