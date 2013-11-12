@@ -117,6 +117,11 @@ class Model{
             }            
         }else{
             $sql .= '*';
+        }
+
+        //Construction des cases
+        if (isset($req['case'])) {
+            $sql .= ','.$req['case'];
         } 
 
         //Construction des jointures
@@ -226,6 +231,5 @@ class Model{
             $this->req_id = $this->db->lastInsertID();
         }
     }
-
 }
 ?>

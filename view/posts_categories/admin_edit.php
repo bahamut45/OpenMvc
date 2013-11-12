@@ -1,21 +1,60 @@
 <div class="page-header">
-    <h1>Editer une catégorie</h1>
+    <h1><?php echo $text; ?></h1>
 </div>
-
-<form class="form-horizontal" action="<?php echo Router::url('admin/posts_categories/edit/'.$id); ?>" method="post">
-    <?php echo $this->Form->input('name','Titre'); ?>
-    <?php echo $this->Form->select('parentId','Catégorie',$cat,$subcat); ?>    
-    <?php echo $this->Form->input('sort','Ordre',array('class' => 'input-mini')); ?>
-    <?php echo $this->Form->input('id','hidden'); ?>
-    <?php echo $this->Form->input('content','Description',array(
+<?php 
+    echo $this->Form->create(null,array(
+    'class' => 'form-horizontal',
+    'inputDefaults' => array(
+        'format'  => array('div', 'before', 'label', 'between', 'input', 'disError', 'after', 'endDiv'),
+        'div'     => 'control-group',
+        'label'   => array('class' => 'control-label'),
+        'between' => '<div class="controls">',
+        'after'   => '</div>',
+        'error'   => array('class' => 'error','attributes' => array('wrap' => 'span', 'class' => 'help-inline'))        
+    )
+    )); 
+?>
+    <?php echo $this->Form->inputForm('id', array('type' => 'hidden')); ?>
+    <?php echo $this->Form->inputForm('name',array(
+        'label' => array('text' => 'Titre :')        
+    )); ?>
+    <?php echo $this->Form->inputForm('parentId',array(
+        'type' => 'select',
+        'label' => array('text' => 'Catégorie Parente:'),
+        'attributes' => $catTree
+    )); ?>
+    <?php echo $this->Form->inputForm('sort',array(
+        'label' => array('text' => 'Ordre :'),
+        'class' => 'input-mini',
+    )); ?>
+    <?php echo $this->Form->inputForm('content',array(
         'type' => 'textarea',
-        'class' => 'input-xxlarge wysiwyg',
+        'label' => array('text' => 'Description :'),
+        'class' => 'wysiwyg',
         'rows' => 5
     )); ?>
-    <div class="form-actions">
-        <input type="submit" class="btn btn-primary" name="" value="Envoyer">
-    </div>
-</form>
+
+<?php 
+    echo $this->Form->end(array(
+        'input' => array(
+            'class' => 'btn btn-primary',
+            'value' => 'Envoyer'
+        ),
+        'reset' => array(
+            'class' => 'btn btn-danger',
+            'style' => 'margin-left:5px',
+            'value' => 'Effacer'
+        ),
+        'cancel' => array(
+            'class' => 'btn btn-info',
+            'style' => 'margin-left:5px',
+            'url'   => 'cockpit/posts_categories',
+            'value' => 'Annuler'
+        ),
+        'div' => 'form-actions'
+    ));
+?>
+
 <script src="http://code.jquery.com/jquery.min.js"></script>
 <script src="<?php echo Router::webroot('js/tinymce/tinymce.min.js'); ?>"></script>
 <script type="text/javascript">

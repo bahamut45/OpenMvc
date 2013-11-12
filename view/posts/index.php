@@ -1,4 +1,4 @@
-<?php//debug($posts); ?>
+<?php //debug(); ?>
 <div class="page-header">
     <h1>Mon blog</h1>
 </div>

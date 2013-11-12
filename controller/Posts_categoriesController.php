@@ -12,6 +12,7 @@ class Posts_categoriesController extends Controller{
         $d['categories'] = $this->Posts_categorie->find(array(
             'conditions' => 'parentId <> -1'
         ));
+        $d['catTree'] = $this->formatCatTree();
         $d['total'] = $this->Posts_categorie->findCount('parentId <> -1');
         $this->set($d);
     }
@@ -22,17 +23,13 @@ class Posts_categoriesController extends Controller{
      * @return [type]     [description]
      */
     function admin_edit($id = null){
-        $this->loadModel('Posts_categorie');
-        $d['cat'] = $this->Posts_categorie->find(array(
-            'fields' =>'id,name,parentId',
-            'conditions' => 'parentId = 0',
-            'orderAsc' => 'parentId'
-        ));
-        $d['subcat'] = $this->Posts_categorie->find(array(
-            'fields' =>'id,name,parentId',
-            'conditions' => 'parentId != 0 AND parentId != -1',
-            'orderAsc' => 'parentId'
-        ));
+        if (is_null($id)) {
+            $d['text'] = 'Ajouter une catégorie';
+        }else{
+            $d['text'] = 'Editer la catégorie';
+        }
+        // Génère l'arbre de catégorie via le controller Posts_categories
+        $d['catTree'] = $this->formatCatTree();
         if ($id === null) {
             $categories = $this->Posts_categorie->findFirst(array(
                 'conditions' => array('parentId' => -1)
@@ -45,7 +42,7 @@ class Posts_categoriesController extends Controller{
                 ));
                 $id = $this->Posts_categorie->id;
             }
-         } 
+        }
         $d['id'] = $id;       
         if ($this->request->data) {
             debug($this->request->data);
@@ -63,6 +60,56 @@ class Posts_categoriesController extends Controller{
             ));
         }
         $this->set($d);
+    }
+
+    /**
+     * Permet de savoir si catégorie parente ou enfante
+     * @param  [type]  $id [description]
+     * @return boolean     [description]
+     */
+    public function catHasChild($id){
+        $this->loadModel('Posts_categorie');
+        $conditions = array(
+            'id' => intval($id)
+        );
+        $res = $this->Posts_categorie->findCount($conditions);
+        if (intval($res) > 0) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Génére l'arbre de catégorie
+     * @param  integer $parent [description]
+     * @param  integer $level  [description]
+     * @return [type]          [description]
+     */
+    public function catTree($parent = 0, $level = 0){
+        $html = '';
+        $this->loadModel('Posts_categorie');
+        $cats = $this->Posts_categorie->find(array(
+            'fields' =>'id,name,parentId,sort',
+            'conditions' => 'parentId = '.intval($parent)
+        ));
+        foreach ($cats as $cat) {
+            $html .= $cat->id . "/" . str_repeat("&mdash;", $level * 1) .'/'. $cat->name . "/".$cat->sort."/".$cat->parentId.",";
+            if ($this->catHasChild($cat->id)) {
+                $html .= $this->catTree($cat->id,$level+1);
+            }
+        }
+        return $html;
+    }
+
+    function formatCatTree(){
+        $tree = explode(',', $this->catTree());
+        foreach ($tree as $key => $value) {
+            if(!empty($value)) {
+                $val = explode('/',$value);
+                $tr[$key] = array('id' => $val[0],'separator' => $val[1], 'name' => $val[2], 'sort' => $val[3], 'parentId' => $val[4]);
+            }
+        }
+        return $tr;
     }
 }
 ?>

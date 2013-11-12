@@ -1,34 +1,77 @@
 <?php 
-    // debug(json_encode($listTags));
+
 ?>
 <div class="page-header">
-    <h1>Editer un article</h1>
+    <h1><?php echo $text; ?></h1>
 </div>
 
-<form class="form-horizontal" action="<?php echo Router::url('admin/posts/edit/'.$id); ?>" method="post">
-    <?php echo $this->Form->input('name','Titre'); ?>
-    <?php echo $this->Form->select('cat_id','Catégorie',$cat,$subcat); ?>     
-    <?php echo $this->Form->input('slug','Url'); ?>
-    <?php echo $this->Form->input('id','hidden'); ?>
-    <?php echo $this->Form->input('created','Crée le',array(
+<?php 
+    echo $this->Form->create(null,array(
+    'class' => 'form-horizontal',
+    'inputDefaults' => array(
+        'format'  => array('div', 'before', 'label', 'between', 'input', 'disError', 'after', 'endDiv'),
+        'div'     => 'control-group',
+        'label'   => array('class' => 'control-label'),
+        'between' => '<div class="controls">',
+        'after'   => '</div>',
+        'class'   => 'input-large',
+        'error'   => array('class' => 'error','attributes' => array('wrap' => 'span', 'class' => 'help-inline'))        
+    )
+    )); 
+?>
+    <?php echo $this->Form->inputForm('id', array('type' => 'hidden')); ?>
+    <?php echo $this->Form->inputForm('name',array(
+        'label' => array('text' => 'Titre :')        
+    )); ?>
+    <?php echo $this->Form->inputForm('slug',array(
+        'label' => array('text' => 'Url :')
+    )); ?>
+    <?php echo $this->Form->inputForm('cat_id',array(
+        'type' => 'select',
+        'label' => array('text' => 'Catégorie :'),
+        'attributes' => $catTree
+    )); ?>
+
+    <?php echo $this->Form->inputForm('created',array(
+        'label' => array('text' => 'Crée le :'),
         'class' => 'form_datetime'
     )); ?>
-    <?php echo $this->Form->input('content','Contenu',array(
+    <?php echo $this->Form->inputForm('content',array(
         'type' => 'textarea',
-        'class' => 'input-xxlarge wysiwyg',
+        'label' => array('text' => 'Contenu :'),
+        'class' => 'wysiwyg',
         'rows' => 5
     )); ?>
-    <?php echo $this->Form->input('online','En ligne',array(
-        'type' => 'checkbox'
+    <?php echo $this->Form->inputForm('online',array(
+        'type' => 'checkbox',
+        'label' => array('text' => 'En ligne :')
     )); ?>
-    <div class="control-group ">
-        <label class="control-label" for="inputtag">Tag</label>
-        <div class="controls"><input type="text" name="tag" id="inputtag" value="<?php echo $articleTags; ?>" /></div>
-    </div>    
-    <div class="form-actions">
-        <input type="submit" class="btn btn-primary" name="" value="Envoyer">
-    </div>
-</form>
+    <?php echo $this->Form->inputForm('tag',array(
+        'class' => 'input-xlarge',
+        'label' => array('text' => 'Tag :'),
+        'value' => $articleTags
+    )); ?>
+
+<?php 
+    echo $this->Form->end(array(
+        'input' => array(
+            'class' => 'btn btn-primary',
+            'value' => 'Envoyer'
+        ),
+        'reset' => array(
+            'class' => 'btn btn-danger',
+            'style' => 'margin-left:5px',
+            'value' => 'Effacer'
+        ),
+        'cancel' => array(
+            'class' => 'btn btn-info',
+            'style' => 'margin-left:5px',
+            'url'   => 'cockpit/posts',
+            'value' => 'Annuler'
+        ),
+        'div' => 'form-actions'
+    ));
+?>
 <script src="http://code.jquery.com/jquery.min.js"></script>
 <script src="<?php echo Router::webroot('js/autocomplete/jquery.autocomplete.min.js'); ?>"></script>
 <script>
@@ -102,4 +145,3 @@
         return false;
     }
 </script>
-

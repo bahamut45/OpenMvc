@@ -22,6 +22,7 @@ class PostsController extends Controller{
             $this->e404('Post introuvable');
         }
         $this->set($d);
+        //debug($this->request);
     }
 
     function view($id,$slug){
@@ -92,6 +93,11 @@ class PostsController extends Controller{
      * @return [type]     [description]
      */
     function admin_edit($id = null){
+        if (is_null($id)) {
+            $d['text'] = 'Ajouter un article';
+        }else{
+            $d['text'] = 'Editer l\'article';
+        }
         //lister les tags de l'article        
         $this->loadModel('Tag');
         $condition = array(
@@ -110,10 +116,14 @@ class PostsController extends Controller{
             ),
             'orderAsc' => 'name'
         ));
-        foreach ($d['articleTags'] as $k => $v) {
-            $articleTags[] = $v->name;
+        if (!empty($d['articleTags'])) {
+            foreach ($d['articleTags'] as $k => $v) {
+                $articleTags[] = $v->name;
+            }
+            $d['articleTags'] = implode(', ', $articleTags).', ';
+        }else{
+            $d['articleTags'] = '';
         }
-        $d['articleTags'] = implode(', ', $articleTags).', ';
 
         // Liste tous les tags pour autocompletion
         $this->loadModel('Tag');
@@ -123,18 +133,8 @@ class PostsController extends Controller{
         }
         $d['listTags'] = $listTags;
 
-        //Liste les catégorie et sous catégorie pour les articles
-        $this->loadModel('Posts_categorie');
-        $d['cat'] = $this->Posts_categorie->find(array(
-            'fields' =>'id,name,parentId',
-            'conditions' => 'parentId = 0',
-            'orderAsc' => 'parentId'
-        ));
-        $d['subcat'] = $this->Posts_categorie->find(array(
-            'fields' =>'id,name,parentId',
-            'conditions' => 'parentId != 0 AND parentId != -1',
-            'orderAsc' => 'parentId'
-        ));
+        // Génère l'arbre de catégorie via le controller Posts_categories
+        $d['catTree'] = $this->request('Posts_categories','formatCatTree');
 
         $this->loadModel('Post');
         if ($id === null) {
@@ -149,7 +149,7 @@ class PostsController extends Controller{
                 ));
                 $id = $this->Post->id;
             }
-         } 
+        } 
         $d['id'] = $id;       
         if ($this->request->data) {
                 
@@ -228,7 +228,5 @@ class PostsController extends Controller{
         $d['posts'] = $this->Post->find();
         $this->set($d);
     }
-
-
 }
 ?>
