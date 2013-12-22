@@ -9,7 +9,5 @@ define('BASE_URL', dirname(dirname($_SERVER['SCRIPT_NAME']))); # Definie l'url d
 require CORE.DS.'Includes.php';
 new Dispatcher();
 
+$_SESSION['loadPage'] = (round(microtime(true) - $debut,5)*1000);
 ?>
-<div style="position:fixed;bottom:0;left:0;right:0;background:#900;color:#FFF;line-height:30px;height:30px;padding-left:10px">
-<?php echo 'Page générée en '.(round(microtime(true) - $debut,5)*1000).' ms'; ?>    
-</div>

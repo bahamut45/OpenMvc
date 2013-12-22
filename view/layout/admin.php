@@ -39,7 +39,7 @@
                     <a class="brand" href="<?php echo Router::url('admin/posts/index'); ?>">Administration</a>
                     <div class="nav-collapse">
                         <ul class="nav">
-                            <li class="dropdown">
+                            <li class="dropdown <?php echo isActive(Router::url('cockpit/posts'),'active',false); ?>">
                                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">Gestion des articles <b class="caret"></b></a>
                                 <ul class="dropdown-menu">
                                     <li><a href="<?php echo Router::url('admin/posts/index'); ?>">Liste des articles</a></li>
@@ -49,12 +49,29 @@
                                     <li><a href="<?php echo Router::url('admin/posts_categories/edit'); ?>">Ajouter une catégorie</a></li>
                                 </ul>
                             </li>
-                            <li></li>
-                            <li><a href="<?php echo Router::url('admin/pages/index'); ?>">Pages</a></li>
-                            <li><a href="<?php echo Router::url(''); ?>">Site</a></li>
-                            <li><a href="<?php echo Router::url('users/logout'); ?>">Deconnexion</a></li>
+                            <li class="<?php echo isActive(Router::url('admin/pages'),'active',false); ?>"><a href="<?php echo Router::url('admin/pages/index'); ?>">Pages</a></li>
                         </ul>
-                        <p class="navbar-text pull-right">Logged in as <a href="#"><?php echo $this->Session->user('login'); ?></a></p>
+                        <div class="btn-group pull-right">
+                            <button class="btn btn-primary">
+                                <i class="icon-user icon-white"></i> <?php echo $this->Session->user('login') ?>
+                            </button>
+                            <button class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+                                <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <a href="<?php echo Router::url(); ?>">
+                                        <i class="icon-home"></i> Site
+                                    </a>
+                                </li>
+                                <li class="divider"></li>
+                                <li>
+                                    <a href="<?php echo Router::url('users/logout'); ?>">
+                                        <i class="icon-off"></i> Se déconnecter
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
                     </div><!--/.nav-collapse -->
                 </div>
             </div>
@@ -72,7 +89,11 @@
         ================================================== -->
         <!-- Placed at the end of the document so the pages load faster -->
         <script src="http://code.jquery.com/jquery.min.js"></script>
-        
+        <script type="text/javascript">
+            jQuery(document).ready(function($){
+                $('.alert').delay(3000).fadeOut(500);
+            });
+        </script>
         <script src="http://getbootstrap.com/2.3.2/assets/js/bootstrap-transition.js"></script>
         <script src="http://getbootstrap.com/2.3.2/assets/js/bootstrap-alert.js"></script>
         <script src="http://getbootstrap.com/2.3.2/assets/js/bootstrap-modal.js"></script>

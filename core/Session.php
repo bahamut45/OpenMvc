@@ -19,7 +19,7 @@
 
     public function flash(){
         if (isset($_SESSION['flash']['message'])) {
-            $html = '<div class="alert alert-'.$_SESSION['flash']['type'].' "><p>'.$_SESSION['flash']['message'].'</p></div>';
+            $html = '<div class="alert alert-'.$_SESSION['flash']['type'].' "><button type="button" class="close" data-dismiss="alert">&times;</button>'.$_SESSION['flash']['message'].'</div>';
             $_SESSION['flash'] = array();
             return $html;
         }

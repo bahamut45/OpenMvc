@@ -45,7 +45,6 @@ class Posts_categoriesController extends Controller{
         }
         $d['id'] = $id;       
         if ($this->request->data) {
-            debug($this->request->data);
             if ($this->Posts_categorie->validates($this->request->data)) {
                 $this->Posts_categorie->save($this->request->data);                
                 $this->Session->setFlash('Le contenu a bien été modifié');
@@ -89,11 +88,11 @@ class Posts_categoriesController extends Controller{
         $html = '';
         $this->loadModel('Posts_categorie');
         $cats = $this->Posts_categorie->find(array(
-            'fields' =>'id,name,parentId,sort',
+            'fields' =>'id,name,parentId,sort,slug',
             'conditions' => 'parentId = '.intval($parent)
         ));
         foreach ($cats as $cat) {
-            $html .= $cat->id . "/" . str_repeat("&mdash;", $level * 1) .'/'. $cat->name . "/".$cat->sort."/".$cat->parentId.",";
+            $html .= $cat->id . "/" . str_repeat("&mdash;", $level * 1) .'/'. $cat->name . "/".$cat->sort."/".$cat->parentId."/".$cat->slug.",";
             if ($this->catHasChild($cat->id)) {
                 $html .= $this->catTree($cat->id,$level+1);
             }
@@ -106,7 +105,7 @@ class Posts_categoriesController extends Controller{
         foreach ($tree as $key => $value) {
             if(!empty($value)) {
                 $val = explode('/',$value);
-                $tr[$key] = array('id' => $val[0],'separator' => $val[1], 'name' => $val[2], 'sort' => $val[3], 'parentId' => $val[4]);
+                $tr[$key] = array('id' => $val[0],'separator' => $val[1], 'name' => $val[2], 'sort' => $val[3], 'parentId' => $val[4], 'slug' => $val[5]);
             }
         }
         return $tr;

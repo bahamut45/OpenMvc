@@ -10,9 +10,9 @@
                 <li class="nav-header">Catégorie</li>
                 <?php foreach ($catTree as $k => $v): ?>
                     <?php if (!is_null($v['parentId'])): ?>
-                        <li><a href="<?php echo Router::url("blog/category/{$v['slug']}"); ?>"><?php echo $v['separator'] .' '. $v['name']; ?></a></li>
+                        <li class="<?php echo isActive(Router::url("blog/category/{$v['slug']}"),'active'); ?>"><a href="<?php echo Router::url("blog/category/{$v['slug']}"); ?>"><?php echo $v['separator'] .' '. $v['name']; ?></a></li>
                     <?php else: ?>
-                        <li><a href="<?php echo Router::url("blog/category/{$v['slug']}"); ?>"><?php echo $v['name']; ?></a></li>    
+                        <li class="<?php echo isActive(Router::url("blog/category/{$v['slug']}"),'active'); ?>"><a href="<?php echo Router::url("blog/category/{$v['slug']}"); ?>"><?php echo $v['name']; ?></a></li>    
                     <?php endif ?>                    
                 <?php endforeach ?>
             </ul>

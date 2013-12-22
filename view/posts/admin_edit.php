@@ -43,8 +43,15 @@
         'rows' => 5
     )); ?>
     <?php echo $this->Form->inputForm('online',array(
-        'type' => 'checkbox',
-        'label' => array('text' => 'En ligne :')
+        'type' => 'radio',
+        'label' => array('text' => 'Etat :'),
+        'attributes' => array(
+            0 => 'Brouillon',
+            1 => 'Publié'
+        ),
+        'option' => array(
+            'label' => array('class' => 'radio inline'),
+        ),
     )); ?>
     <?php echo $this->Form->inputForm('tag',array(
         'class' => 'input-xlarge',
@@ -107,21 +114,33 @@
         selector: "textarea.wysiwyg",
         theme: "modern",
         language : 'fr_FR',
+        // plugins: [
+        //     "advlist autoresize autolink lists link image charmap print preview hr anchor pagebreak",
+        //     "searchreplace wordcount visualblocks visualchars code fullscreen",
+        //     "insertdatetime media nonbreaking save table contextmenu directionality",
+        //     // "emoticons template paste textcolor moxiemanager"
+        //     "emoticons template paste textcolor readmore"
+        // ],
+        // toolbar1: "insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image",
+        // toolbar2: "print preview media | forecolor backcolor emoticons | readmore",
+        // image_advtab: true,
+        // templates: [
+        //     {title: 'Test template 1', content: 'Test 1'},
+        //     {title: 'Test template 2', content: 'Test 2'}
+        // ],
         plugins: [
-            "advlist autoresize autolink lists link image charmap print preview hr anchor pagebreak",
-            "searchreplace wordcount visualblocks visualchars code fullscreen",
-            "insertdatetime media nonbreaking save table contextmenu directionality",
-            // "emoticons template paste textcolor moxiemanager"
-            "emoticons template paste textcolor "
+                "advlist autoresize autolink autosave link image lists charmap print preview hr anchor pagebreak spellchecker",
+                "searchreplace wordcount visualblocks visualchars code fullscreen insertdatetime media nonbreaking",
+                "table directionality emoticons template textcolor paste textcolor readmore"
         ],
-        toolbar1: "insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image",
-        toolbar2: "print preview media | forecolor backcolor emoticons",
+
+        toolbar1: "newdocument | bold italic underline strikethrough | alignleft aligncenter alignright alignjustify | styleselect formatselect fontselect fontsizeselect",
+        toolbar2: "cut copy paste | searchreplace | bullist numlist | outdent indent blockquote | undo redo | link unlink anchor image media code | inserttime preview | forecolor backcolor",
+        toolbar3: "table | hr removeformat | subscript superscript | charmap emoticons | print fullscreen | ltr rtl | spellchecker | visualchars visualblocks nonbreaking template pagebreak readmore restoredraft",
+        menubar: false,
         image_advtab: true,
-        templates: [
-            {title: 'Test template 1', content: 'Test 1'},
-            {title: 'Test template 2', content: 'Test 2'}
-        ],
         convert_urls: false,
+        browser_spellcheck : true,
         file_browser_callback: fileBrowser
     });
     function fileBrowser(field_name, url, type, win){

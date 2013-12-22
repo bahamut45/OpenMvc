@@ -70,8 +70,6 @@ class Controller{
             if (isset($this->Form)) {
                 $this->$name->Form = $this->Form;
             }
-
-
         }        
     }
 

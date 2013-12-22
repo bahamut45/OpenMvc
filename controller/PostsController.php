@@ -7,27 +7,172 @@ class PostsController extends Controller{
     function index(){
         $perPage = 10;
         $this->loadModel('Post');
-        $condition = array(
-            'type'   =>'post',
-            'online' => 1
-        );
-        $d['posts'] = $this->Post->find(array(
-            'conditions' => $condition,
-            'orderDesc'   => 'created',
-            'limit'      => ($perPage*($this->request->page-1)).','.$perPage
+        $posts = $this->Post->find(array(
+            'fields'     => array('id,name,content,slug'),
+            'functions'  => array('DATE_FORMAT( Post.created,  "%W %d %M %Y" ) AS created', 'GROUP_CONCAT( Tags.name SEPARATOR  ", ") AS Tag'),
+            'conditions' => array('type' =>'post','online' => 1),
+            'joins'      => array(
+                array(
+                    'table'  => 'posts_categories',
+                    'as'     => 'PostCat',
+                    'fields' => array(
+                        'name' => 'PostCatName',
+                        'slug' => 'PostCatSlug',
+                    ),
+                    'type'       => 'left',
+                    'conditions' => 'PostCat.id = Post.cat_id'
+                ),
+                array(
+                    'table'  => 'posts_tags',
+                    'as'     => 'PostTags',
+                    'type'       => 'left',
+                    'conditions' => 'Post.id = PostTags.posts_id'
+                ),
+                array(
+                    'table'  => 'tags',
+                    'as'     => 'Tags',
+                    'type'       => 'left',
+                    'conditions' => 'PostTags.tags_id = Tags.id'
+                ),                
+                array(
+                    'table'  => 'users',
+                    'as'     => 'User',
+                    'fields' => array(
+                        'login' => 'UserLogin'
+                    ),
+                    'type'       => 'left',
+                    'conditions' => 'Post.user_id = User.id'
+                )
+            ),
+            'group'     => 'Post.id, Post.name',
+            'orderDesc' => 'Post.created',
+            'limit'     => ($perPage*($this->request->page-1)).','.$perPage
         ));
-        $d['total'] = $this->Post->findCount($condition);
+
+        // Permet de trouver le readmore
+        foreach ($posts as $k => $v) {
+            if (($more_pos = strpos($v->content, "<hr id=\"openmvc-readmore\" style=\"border: red dashed 1px;\" />")) !== false){
+                $v->content = substr($v->content, 0, $more_pos);
+                $url = Router::url("posts/view/id:{$v->id}/slug:{$v->slug}");
+                $v->content .= '<div class="clearfix"><a class="btn" href="'.$url.'">Lire la suite &rarr;</a></div>';
+            }
+        }
+
+        $d['posts'] = $posts;
+
+        $d['total'] = $this->Post->findCount(array(
+                'type' =>'post',
+                'online' => 1
+            )
+        );
         $d['page'] = ceil($d['total'] / $perPage);
         if (empty($d['posts'])) {
             $this->e404('Post introuvable');
         }
+
+        // Génère l'arbre de catégorie via le controller Posts_categories
+        $d['catTree'] = $this->request('Posts_categories','formatCatTree');
+
+        // Génère la liste des archives
+        $d['dateTree'] = $this->Post->find(array(
+            'fields'     => false,
+            'functions'  => array('YEAR(created) AS YEAR', 'MONTHNAME(created) AS MONTH','COUNT(*) AS TOTAL'),
+            'conditions' => array('type' =>'post','online' => 1),
+            'group'      => 'YEAR,MONTH',
+            'orderDesc'  => 'MONTH( created )'
+        ));
+
         $this->set($d);
-        //debug($this->request);
+    }
+
+    //Permet d'afficher les articles qui correspondent à la catégorie.
+    function category($category){
+        $this->loadModel('Posts_categorie');
+        $cat = $this->Posts_categorie->findFirst(array(
+            'conditions'=>array('slug'=>$category)
+        ));
+        if(empty($cat)){
+            $this->e404('Page introuvable');
+        }
+        $perPage = 10;
+        $this->loadModel('Post');
+        $posts = $this->Post->find(array(
+            'fields'     => array('id,name,content,slug'),
+            'functions'  => array('DATE_FORMAT( Post.created,  "%W %d %M %Y" ) AS created', 'GROUP_CONCAT( Tags.name SEPARATOR  ", ") AS Tag'),
+            'conditions' => array('type' =>'post','online' => 1,'cat_id' => $cat->id),
+            'joins'      => array(
+                array(
+                    'table'  => 'posts_categories',
+                    'as'     => 'PostCat',
+                    'fields' => array(
+                        'name' => 'PostCatName',
+                        'slug' => 'PostCatSlug',
+                    ),
+                    'type'       => 'left',
+                    'conditions' => 'PostCat.id = Post.cat_id'
+                ),
+                array(
+                    'table'  => 'posts_tags',
+                    'as'     => 'PostTags',
+                    'type'       => 'left',
+                    'conditions' => 'Post.id = PostTags.posts_id'
+                ),
+                array(
+                    'table'  => 'tags',
+                    'as'     => 'Tags',
+                    'type'       => 'left',
+                    'conditions' => 'PostTags.tags_id = Tags.id'
+                ),                
+                array(
+                    'table'  => 'users',
+                    'as'     => 'User',
+                    'fields' => array(
+                        'login' => 'UserLogin'
+                    ),
+                    'type'       => 'left',
+                    'conditions' => 'Post.user_id = User.id'
+                )
+            ),
+            'group'     => 'Post.id, Post.name',
+            'orderDesc' => 'Post.created',
+            'limit'     => ($perPage*($this->request->page-1)).','.$perPage
+        ));
+
+        // Permet de trouver le readmore
+        foreach ($posts as $k => $v) {
+            if (($more_pos = strpos($v->content, "<hr id=\"openmvc-readmore\" style=\"border: red dashed 1px;\" />")) !== false){
+                $v->content = substr($v->content, 0, $more_pos);
+                $url = Router::url("posts/view/id:{$v->id}/slug:{$v->slug}");
+                $v->content .= '<div class="clearfix"><a class="btn" href="'.$url.'">Lire la suite &rarr;</a></div>';
+            }
+        }
+
+        $d['posts'] = $posts;
+
+        $d['total'] = $this->Post->findCount(array(
+                'type' =>'post',
+                'online' => 1
+            )
+        );
+        $d['page'] = ceil($d['total'] / $perPage);
+
+         // Génère l'arbre de catégorie via le controller Posts_categories
+        $d['catTree'] = $this->request('Posts_categories','formatCatTree');
+
+        // Génère la liste des archives
+        $d['dateTree'] = $this->Post->find(array(
+            'fields'     => false,
+            'functions'  => array('YEAR(created) AS YEAR', 'MONTHNAME(created) AS MONTH','COUNT(*) AS TOTAL'),
+            'conditions' => array('type' =>'post','online' => 1),
+            'group'      => 'YEAR,MONTH',
+            'orderDesc'  => 'MONTH( created )'
+        ));
+        $this->set($d);
     }
 
     function view($id,$slug){
         $this->loadModel('Post');
-        $d['post'] = $this->Post->findFirst(array(
+        $post = $this->Post->findFirst(array(
             'fields'    => 'id,slug,content,name',
             'conditions'    => array(
                 'type' =>'post',
@@ -35,6 +180,12 @@ class PostsController extends Controller{
                 'id'=>$id
             )
         ));
+
+        //Supprime le hr du readmore pour la visualisation de l'article
+        if (($more_pos = strpos($post->content, "<hr id=\"openmvc-readmore\" style=\"border: red dashed 1px;\" />")) !== false){
+            $post->content = str_replace("<hr id=\"openmvc-readmore\" style=\"border: red dashed 1px;\" />", "", $post->content);
+        }
+        $d['post'] = $post;
         if (empty($d['post'])) {
             $this->e404('Page introuvable');
         }

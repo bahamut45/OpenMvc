@@ -30,13 +30,17 @@ class Model{
             return true;
         }
         try {
+            $options = array(
+                PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8;SET lc_time_names = "fr_FR"',
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_WARNING
+            );
             $pdo = new PDO(
                 'mysql:host='.$conf['host'].';dbname='.$conf['database'].';',
                 $conf['login'],
                 $conf['password'],
-                array(PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8')
+                $options
             );
-            $pdo->setAttribute(PDO::ATTR_ERRMODE,PDO::ERRMODE_WARNING); 
+            //$pdo->setAttribute(PDO::ATTR_ERRMODE,PDO::ERRMODE_WARNING); 
             Model::$connections[$this->conf] = $pdo;
             $this->db = $pdo;
         } catch (PDOException $e) {
@@ -84,7 +88,7 @@ class Model{
     private function addTableNameFields($fields,$alias = null){
         $explode = array();
         $return = array();
-        if(is_assoc($fields)) {
+        if(isAssoc($fields)) {
             foreach ($fields as $key => $value) {
                 $return[] = $alias.'.'.$key.' as '.$value;
             }
@@ -112,6 +116,8 @@ class Model{
         if (isset($req['fields'])) {
             if(is_array($req['fields'])){
                 $sql .= implode(',',$this->addTableNameFields($req['fields']));
+            }elseif ($req['fields'] === false){
+                $sql .= '';
             }else{
                 $sql .= $req['fields'];
             }            
@@ -122,6 +128,23 @@ class Model{
         //Construction des cases
         if (isset($req['case'])) {
             $sql .= ','.$req['case'];
+        } 
+
+        //Construction des functions mysql
+        if (isset($req['functions'])) {
+            if (is_array($req['functions'])) {
+                if ($req['fields'] === false) {
+                    $sql .= implode(',',$req['functions']);
+                }else {
+                    $sql .= ','.implode(',',$req['functions']);
+                }
+            }else{
+                if ($req['fields'] === false) {
+                    $sql .= $req['function'];
+                }else {
+                    $sql .= ','.$req['function'];
+                }                
+            }            
         } 
 
         //Construction des jointures
@@ -159,6 +182,11 @@ class Model{
             }
         }
 
+        //Construction de Group
+        if (isset($req['group'])) {
+            $sql .= ' GROUP BY ' . $req['group'];
+        }
+
         // Construction de l'ordre
         if(isset($req['orderDesc'])){
             $sql .= ' ORDER BY ' . $req['orderDesc'] . ' DESC';
@@ -174,8 +202,16 @@ class Model{
         }
 
         //die($sql);
+        //echo $sql.'<br />';
+
         $pre = $this->db->prepare($sql);
         $pre->execute();
+        // permet de compter le nombre de requete 
+        if (!isset($_SESSION['CountSql'])) {
+            $_SESSION['CountSql'] = $sql.' | ';
+        }else{
+            $_SESSION['CountSql'] .= $sql.' | ';            
+        }
         return $pre->fetchAll(PDO::FETCH_OBJ);
     }
 
@@ -231,5 +267,6 @@ class Model{
             $this->req_id = $this->db->lastInsertID();
         }
     }
-}
+} 
+
 ?>

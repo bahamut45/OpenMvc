@@ -127,6 +127,7 @@
         $class      = (isset($options['class'])) ? (is_array($options['class'])) ? implode(' ',$options['class']) : $options['class'] : null;
         $format     = (isset($options['format'])) ? $options['format'] : array('div', 'before', 'label', 'between', 'input', 'disError', 'after', 'endDiv');
         $value      = (isset($this->controller->request->data->$fieldName)) ? $this->controller->request->data->$fieldName : ((isset($options['value'])) ? $options['value'] : '' );
+        $placeholder= (isset($options['placeholder'])) ? 'placeholder="'.$options['placeholder'].'"' : null;
 
         //Vérification des erreurs suite à la validation
         if (isset($this->errors[$fieldName])) {
@@ -171,7 +172,7 @@
             if (isset($class)) {
                 $class = 'class="'.$class.'"';
             }
-            $input = '<input type="text" id="input'.$fieldName.'" '.$class.' name="'.$fieldName.'" value="'.$value.'">';
+            $input = '<input type="text" id="input'.$fieldName.'" '.$class.' '.$placeholder.' name="'.$fieldName.'" value="'.$value.'">';
         }else{
             $type = $options['type'];
             unset($realOptions['type']);
@@ -199,6 +200,15 @@
         }
         $hidden = '<input type="hidden" name="'.$fieldName.'" '.$hiddenAttr.'>';
         return $hidden;
+    }
+
+    public function password($fieldName, $options = array()) {
+        $passwordAttr = '';
+        foreach ($options as $k => $v) {
+            $passwordAttr .= " $k=\"$v\"";
+        }
+        $password = '<input type="password" name="'.$fieldName.'" '.$passwordAttr.'>';
+        return $password;
     }
 
     public function textarea($fieldName, $options = array()) {
@@ -256,7 +266,7 @@
      */
     public function checkbox($fieldName, $options = array()){
         $checkbox = '';
-        if (isset($options['multiple'])) {
+        if (isset($options['multiple']) AND isset($options['attributes'])) {
             $class = (isset($options['option']['label']['class'])) ? $options['option']['label']['class'] : '';
             foreach ($options['attributes'] as $key => $value) {
                 if (isset($options['selected']) AND in_array($key,$options['selected'])) {
@@ -280,6 +290,22 @@
             }
         }
         return $checkbox;
+    }
+
+    public function radio($fieldName, $options = array()){
+        $radio = '';
+            if (isset($options['attributes'])) {
+                $class = (isset($options['option']['label']['class'])) ? $options['option']['label']['class'] : '';
+                foreach ($options['attributes'] as $key => $value) {
+                    if ($options['value'] == $key) {
+                        $checked = 'checked';
+                    }else{
+                        $checked = '';
+                    }
+                    $radio .= '<label class="'.$class.'" for="input'.$value.'"><input type="radio" id="input'.$value.'" name="'.$fieldName.'" value="'.$key.'" '.$checked.'>'.$value.'</label>';
+                }
+            }
+        return $radio;
     }
 
 
